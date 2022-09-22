@@ -19,10 +19,13 @@ url = 'https://www.livesport.com/en/soccer/'+ country + '/' + league + '-' + sea
 class GetData:
     def __init__(self, url):
         chromeBrowser.get(url)
+        self.arrayMatches = []
+        self.stringMatchesGeneral = ''
+        self.homeGoals = []
     
     def acceptCookies(self):
         try:
-            buttonAccept = WebDriverWait(chromeBrowser, 20).until(EC.presence_of_element_located((By.ID, 'onetrust-accept-btn-handler')))
+            buttonAccept = WebDriverWait(chromeBrowser, 10).until(EC.presence_of_element_located((By.ID, 'onetrust-accept-btn-handler')))
             buttonAccept.click()
         except:
             print('Couldnt reach button')
@@ -30,10 +33,8 @@ class GetData:
     def showMoreMatches(self):
         while True:
             try:
-                #loading = WebDriverWait(chromeBrowser, 20).until(EC.text_to_be_present_in_element((By.CLASS_NAME, 'loadingAnimation'), ''))
                 moreMatches = chromeBrowser.find_element(By.LINK_TEXT,'Show more matches') 
                 ActionChains(chromeBrowser).scroll_to_element(moreMatches).perform()
-                print(moreMatches)
                 loading = chromeBrowser.find_element(By.CLASS_NAME, 'loadingAnimation').text
 
                 while (loading=='LOADING...'):
@@ -45,7 +46,22 @@ class GetData:
                 print('Couldnt find click button')
                 break
 
+    def getArrayMatches(self):
+        self.arrayMatches = chromeBrowser.find_elements(By.XPATH, "//*[starts-with(@id, 'g_1_')]") 
+        self.stringMatchesGeneral = chromeBrowser.find_element(By.ID, 'live-table').text 
+            
+    def eachMatchData(self, arrayMatches):
+        for match in arrayMatches:
+            ActionChains(chromeBrowser).scroll_to_element(match).perform()
+            match.click()
+            chromeBrowser.switch_to.window(chromeBrowser.window_handles[1])
+            self.acceptCookies()
+            goalData = chromeBrowser.find_element(By.CLASS_NAME, 'smv__verticalSections' )
+            print(goalData)
+            
 
 premierLeague = GetData(url)
 premierLeague.acceptCookies()
-premierLeague.showMoreMatches()       
+premierLeague.showMoreMatches()
+premierLeague.getArrayMatches()
+premierLeague.eachMatchData(premierLeague.arrayMatches)       
