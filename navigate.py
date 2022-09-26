@@ -4,18 +4,10 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-
-#Start Chrome web browser 
-# chromeBrowser = webdriver.Chrome(service=Service("./chromedriver.exe"))
 chromeBrowser = webdriver.Chrome()
 
-#set the country, league and season, it may be equal to web page link
-country = 'england'
-league = 'premier-league'
-season = '2021-2022'
-leagueLink = 'https://www.livesport.com/en/soccer/'+ country + '/' + league + '-' + season + '/results/'
-
 def openUrl(url):
+    
     chromeBrowser.get(url)
 
 def acceptCookies():
@@ -59,14 +51,14 @@ def eachMatchInfo():
     return dateTime, roundInfo
 
 def eachMatchGoals(team):
-    name = chromeBrowser.find_element(By.CLASS_NAME, 'duelParticipant__' + team).text
+    teamName = chromeBrowser.find_element(By.CLASS_NAME, 'duelParticipant__' + team).text
     scoreContainer = chromeBrowser.find_element(By.CLASS_NAME, 'detailScore__wrapper')
     scoreArray = scoreContainer.find_elements(By.TAG_NAME, 'span') 
 
     if (team=='home'):
-        score = int(scoreArray[0])
+        score = int(scoreArray[0].text)
     if (team=='away'):
-        score = int(scoreArray[2])
+        score = int(scoreArray[2].text)
 
     goalData = chromeBrowser.find_element(By.CLASS_NAME, 'smv__verticalSections' )
             
@@ -86,14 +78,14 @@ def eachMatchGoals(team):
         except:
             print('Not a Goal')
 
-    return name, score, goals, scorer
+    return teamName, score, goals, scorer
 
 def eachMatchStats(team, half, isFirstClick):
 
     if (isFirstClick):
         chromeBrowser.find_element(By.LINK_TEXT, 'STATISTICS').click()
 
-    WebDriverWait(chromeBrowser, 2).until(EC.presence_of_element_located((By.LINK_TEXT, half))).click()
+    WebDriverWait(chromeBrowser, 5).until(EC.presence_of_element_located((By.LINK_TEXT, half))).click()
     statsArray = chromeBrowser.find_elements(By.CLASS_NAME, 'stat__category')
     statsObject = {}
     for stat in statsArray:
@@ -109,6 +101,10 @@ def eachMatchStats(team, half, isFirstClick):
 def closeWindow():
     chromeBrowser.close()
     chromeBrowser.switch_to.window(chromeBrowser.window_handles[0])
+
+def closeBrowser():
+    chromeBrowser.close()
+
 
 
     
