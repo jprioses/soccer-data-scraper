@@ -10,7 +10,7 @@ premierLeague = GetData(country, league, season)
 premierLeague.getArrayMatches()
 jsonData = OrganiseData(premierLeague)
 jsonData.jsonFormat()
-jsonData.saveAsTxt()
+jsonData.saveAsTXT()
 
 
 
