@@ -13,7 +13,7 @@ class OrganiseData:
                 'season': self.leagueData.season,
             })
 
-        i=0
+        i=1
         for data in self.leagueData.data:
             self.data.append({
                 'id':i,

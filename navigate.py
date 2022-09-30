@@ -80,12 +80,14 @@ def eachMatchGoals(team):
 
     return teamName, score, goals, scorer
 
-def eachMatchStats(team, half, isFirstClick):
+def eachMatchStats(team, half, isStatsClicked, isHalfClicked):
 
-    if (isFirstClick):
+    if (not(isStatsClicked)):
         chromeBrowser.find_element(By.LINK_TEXT, 'STATISTICS').click()
+    if (not(isHalfClicked)):
+        WebDriverWait(chromeBrowser, 5).until(EC.presence_of_element_located((By.LINK_TEXT, half))).click()   
 
-    WebDriverWait(chromeBrowser, 5).until(EC.presence_of_element_located((By.LINK_TEXT, half))).click()
+    
     statsArray = chromeBrowser.find_elements(By.CLASS_NAME, 'stat__category')
     statsObject = {}
     for stat in statsArray:

@@ -26,14 +26,10 @@ class GetData:
             self.data[i].get_homeData()
             self.data[i].get_awayData()
             self.data[i].get_firstHalfHomeStats()
-            self.data[i].get_secondHalfHomeStats()
             self.data[i].get_firstHalfAwayStats()
+            self.data[i].get_secondHalfHomeStats()
             self.data[i].get_secondHalfAwayStats()
             
-            if (i==1):
-                navigate.closeWindow()
-                break
-
             i+= 1
 
             navigate.closeWindow()
@@ -78,16 +74,16 @@ class GetEachMatchData:
         self.away, self.awayScore, self.awayGoals, self.awayScorer= navigate.eachMatchGoals('away')
 
     def get_firstHalfHomeStats(self):
-        self.firstHalfHomeStats = navigate.eachMatchStats('home', '1ST HALF', True)
+        self.firstHalfHomeStats = navigate.eachMatchStats('home', '1ST HALF', False, False)
         
     def get_secondHalfHomeStats(self):
-        self.secondHalfHomeStats = navigate.eachMatchStats('home', '2ND HALF', False)
+        self.secondHalfHomeStats = navigate.eachMatchStats('home', '2ND HALF', True, False)
 
     def get_firstHalfAwayStats(self):
-        self.firstHalfAwayStats = navigate.eachMatchStats('away', '1ST HALF', False)
+        self.firstHalfAwayStats = navigate.eachMatchStats('away', '1ST HALF', True, True)
 
     def get_secondHalfAwayStats(self):
-        self.secondHalfAwayStats = navigate.eachMatchStats('away', '2ND HALF', False)
+        self.secondHalfAwayStats = navigate.eachMatchStats('away', '2ND HALF', True, True)
 
 
 
