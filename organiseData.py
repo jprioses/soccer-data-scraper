@@ -1,4 +1,5 @@
 import json
+import csv
 
 class OrganiseData:
     def __init__(self, leagueData):
@@ -43,6 +44,25 @@ class OrganiseData:
     
     def saveAsJSON(self):
         with open('data.json', 'w') as json_file:
-            json.dump(self.data, json_file)
+            json.dump(self.data, json_file, indent=1)
+
+    def saveAsTXt(self):
+        with open('data.txt', 'w') as txt_file:
+            txt_file.writelines(json.dumps(self.data, indent=1))
+
+    def saveAsCSV(self):
+        with open('data.csv', 'w') as csv_file:  
+            # creating a csv writer object  
+            csvwriter = csv.writer(csv_file)  
+                
+            # writing the fields  
+            csvwriter.writerow(fields)  
+                
+            # writing the data rows  
+            csvwriter.writerows(rows)
+
+
+
+
         
 

@@ -1,15 +1,18 @@
-import navigate
+from navigate import Navigate
 
-class GetData:
+navigate = Navigate()
+
+class GetData():
     
-    def __init__(self, url, country, league, season):
+    def __init__(self, country, league, season):
         
         self.country = country
         self.league = league
         self.season = season
         self.data = []
         self.arrayMatches = []
-        self.url = url
+        self.url = 'https://www.livesport.com/en/soccer/'+ country + '/' + league + '-' + season + '/results/'
+        
 
     def getArrayMatches(self):
         navigate.openUrl(self.url)
@@ -30,13 +33,18 @@ class GetData:
             self.data[i].get_secondHalfHomeStats()
             self.data[i].get_secondHalfAwayStats()
             
+
+            if (i==1):
+                navigate.closeWindow()
+                break
+            
             i+= 1
 
             navigate.closeWindow()
 
         navigate.closeBrowser()
            
-class GetEachMatchData:
+class GetEachMatchData():
 
     def __init__(self):
             self.date = ''
