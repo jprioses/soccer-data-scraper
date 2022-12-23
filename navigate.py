@@ -3,13 +3,21 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 
 class Navigate:
     def __init__(self):
-        self.chromeBrowser = webdriver.Chrome()
-
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_extension('./plugins/Adblocker_5_3_3_0.crx')
+        self.chromeBrowser = webdriver.Chrome(chrome_options=chrome_options)
+        
     def openUrl(self, url):
+        
         self.chromeBrowser.get(url)
+        
+        self.chromeBrowser.switch_to.window(self.chromeBrowser.window_handles[1])
+        self.chromeBrowser.close()
+        self.chromeBrowser.switch_to.window(self.chromeBrowser.window_handles[0])
 
     def acceptCookies(self):
             try:
@@ -37,6 +45,7 @@ class Navigate:
                 return arrayAllMatches
 
     def eachMatch(self,match):
+        #ActionChains(self.chromeBrowser).scroll_from_origin(ScrollOrigin.from_element(match),196,300).perform()
         ActionChains(self.chromeBrowser).scroll_to_element(match).perform()
         match.click()
         self.chromeBrowser.switch_to.window(self.chromeBrowser.window_handles[1])
@@ -67,6 +76,7 @@ class Navigate:
 
         goals = []   
         scorer = [] 
+        asist = []
 
         for data in goalContainer:
             try:
@@ -75,16 +85,18 @@ class Navigate:
                 minute = minuteString.replace("'","",1)
                 goals.append(minute)
                 name = data.find_element(By.CLASS_NAME, 'smv__playerName').text
+                asistName = data.find_element(By.CLASS_NAME, 'smv__assist').find_element(By.TAG_NAME, 'a').text
                 scorer.append(name)
+                asist.append(asistName)
             except:
                 print('Not a Goal')
-
-        return teamName, score, goals, scorer
+        
+        return teamName, score, goals, scorer, asist
 
     def eachMatchStats(self,team, half, isStatsClicked, isHalfClicked):
 
         if (not(isStatsClicked)):
-            self.chromeBrowser.find_element(By.LINK_TEXT, 'STATISTICS').click()
+            self.chromeBrowser.find_element(By.LINK_TEXT, 'STATS').click()
         if (not(isHalfClicked)):
             WebDriverWait(self.chromeBrowser, 5).until(EC.presence_of_element_located((By.LINK_TEXT, half))).click()   
 
@@ -100,6 +112,58 @@ class Navigate:
                 print('No such Element')
 
         return statsObject
+    
+    def eachMatchOdds(self):
+
+        homeOdds = 0
+        evenOdds = 0
+        awayOdds = 0
+        over0 = 0
+        under0 = 0
+        over1 = 0
+        under1 = 0
+        over2 = 0
+        under2 = 0
+        over3 = 0
+        under3 = 0
+
+        try:
+            self.chromeBrowser.find_element(By.LINK_TEXT, 'ODDS').click()
+            WebDriverWait(self.chromeBrowser, 5).until(EC.presence_of_element_located((By.CLASS_NAME,'ui-table__row')))
+            table = self.chromeBrowser.find_element(By.CLASS_NAME, 'ui-table__row')
+            odds = table.find_elements(By.CLASS_NAME,'oddsCell__odd')
+            homeOdds = odds[0].text
+            evenOdds = odds[1].text
+            awayOdds = odds[2].text
+            print('ODDS ARE: ' + homeOdds + ' ' + evenOdds + ' ' + awayOdds)
+        except:
+            print('No MoneyLine Odds')
+
+        try:    
+            self.chromeBrowser.find_element(By.LINK_TEXT,'O/U').click()
+            WebDriverWait(self.chromeBrowser, 5).until(EC.presence_of_element_located((By.CLASS_NAME,'ui-table__row')))
+            table =self.chromeBrowser.find_elements(By.CLASS_NAME,'ui-table__row')
+            for odd in table:
+                type = odd.find_element(By.CLASS_NAME, 'oddsCell__noOddsCell')
+                if type=='0.5': 
+                    odds = odd.find_elements(By.CLASS_NAME,'oddsCell__odd')
+                    over0 = odds[0]
+                    under0 = odds[1]
+                if type=='1.5': 
+                    odds = odd.find_elements(By.CLASS_NAME,'oddsCell__odd')
+                    over1 = odds[0]
+                    under1 = odds[1]
+                if type=='2.5': 
+                    odds = odd.find_elements(By.CLASS_NAME,'oddsCell__odd')
+                    over2 = odds[0]
+                    under2 = odds[1]
+                if type=='3.5': 
+                    odds = odd.find_elements(By.CLASS_NAME,'oddsCell__odd')
+                    over3 = odds[0]
+                    under3 = odds[1]
+        except:
+            print('No O/U Odds')
+        
 
     def closeWindow(self):
         self.chromeBrowser.close()

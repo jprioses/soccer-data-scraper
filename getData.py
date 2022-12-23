@@ -11,8 +11,8 @@ class GetData():
         self.season = season
         self.data = []
         self.arrayMatches = []
-        self.url = 'https://www.livesport.com/en/soccer/'+ country + '/' + league + '-' + season + '/results/'
-        
+        self.url = 'https://www.flashscore.com/football/'+ country + '/' + league + '-' + season + '/results/'
+        #self.url = 'https://www.livesport.com/en/soccer/'+ country + '/' + league + '-' + season + '/results/'
 
     def getArrayMatches(self):
         navigate.openUrl(self.url)
@@ -32,6 +32,7 @@ class GetData():
             self.data[i].get_firstHalfAwayStats()
             self.data[i].get_secondHalfHomeStats()
             self.data[i].get_secondHalfAwayStats()
+            self.data[i].get_odds()
             
 
             if (i==1):
@@ -54,16 +55,24 @@ class GetEachMatchData():
             self.away=''
             self.homeScore=''
             self.awayScore=''
+            
             self.homeLineups= []
             self.awayLineups= []
+
             self.homeGoals= []
             self.homeScorer= []
+            self.homeAsist = []
+            
             self.awayGoals= []
             self.awayScorer= []
+            self.awayAsist = []
+
             self.firstHalfHomeStats = {}
             self.secondHalfHomeStats = {}
             self.firstHalfAwayStats = {}
             self.secondHalfAwayStats = {}
+
+            self.homeOdd = 0
 
     def get_dateTimeRound(self):
         dateTimeInfo, roundInfo = navigate.eachMatchInfo()
@@ -76,10 +85,10 @@ class GetEachMatchData():
         self.round = arrayRound[1]
 
     def get_homeData(self):
-        self.home, self.homeScore, self.homeGoals, self.homeScorer= navigate.eachMatchGoals('home')
+        self.home, self.homeScore, self.homeGoals, self.homeScorer, self.homeAsist= navigate.eachMatchGoals('home')
         
     def get_awayData(self):
-        self.away, self.awayScore, self.awayGoals, self.awayScorer= navigate.eachMatchGoals('away')
+        self.away, self.awayScore, self.awayGoals, self.awayScorer, self.awayAsist= navigate.eachMatchGoals('away')
 
     def get_firstHalfHomeStats(self):
         self.firstHalfHomeStats = navigate.eachMatchStats('home', '1ST HALF', False, False)
@@ -92,6 +101,9 @@ class GetEachMatchData():
 
     def get_secondHalfAwayStats(self):
         self.secondHalfAwayStats = navigate.eachMatchStats('away', '2ND HALF', True, True)
+
+    def get_odds(self):
+        self.homeOdd = navigate.eachMatchOdds()
 
 
 

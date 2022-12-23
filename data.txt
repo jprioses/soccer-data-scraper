@@ -21,10 +21,9 @@
      "82"
     ],
     "homeScorers": [
-     "Martinelli G.",
      "Nketiah E.",
      "Cedric",
-     "Gabriel",
+     "Gabriel Magalhaes",
      "Odegaard M."
     ],
     "awayGoals": [
@@ -133,10 +132,7 @@
      "56",
      "90+4"
     ],
-    "awayScorers": [
-     "Raphinha",
-     "Harrison J."
-    ],
+    "awayScorers": [],
     "stats": {
      "firstHalfStats": {
       "home": {
