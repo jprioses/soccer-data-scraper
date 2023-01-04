@@ -1,11 +1,24 @@
 import json
 import csv
+import os
 
 class OrganiseData:
     def __init__(self, leagueData):
         self.leagueData = leagueData
         self.data = []
-    
+        self.dirName = self.getDirName()
+        self.fileName =  self.dirName + '/' + self.leagueData.league + self.leagueData.season
+
+        
+    def getDirName(self):
+        dirName = './data/' + self.leagueData.league 
+        try:
+            os.mkdir(dirName)
+        except FileExistsError:
+            pass
+
+        return dirName
+
     def jsonFormat(self):
 
         self.data.append({
@@ -15,10 +28,11 @@ class OrganiseData:
                 'matches': []
             })
 
-        i=0
+        i=len(self.leagueData.arrayMatches)
         for data in self.leagueData.data:
             self.data[0]['matches'].append({
-                'id':i,
+                'id':str(i),
+                'count':str(i) + ' out of ' + str(len(self.leagueData.arrayMatches)),
                 'date': data.date,
                 'time': data.time,
                 'round': data.round,
@@ -28,8 +42,10 @@ class OrganiseData:
                 'awayScore': data.awayScore,
                 'homeGoals': data.homeGoals,
                 'homeScorers': data.homeScorer,
+                'homeAsist': data.homeAsist,
                 'awayGoals': data.awayGoals,
                 'awayScorers': data.awayScorer,
+                'awayAsist': data.awayAsist,
                 'stats': {
                     'firstHalfStats': {
                         'home': data.firstHalfHomeStats,
@@ -39,20 +55,57 @@ class OrganiseData:
                         'home': data.secondHalfHomeStats,
                         'away': data.secondHalfAwayStats,
                     }
+                },
+                'odds': {
+                    'moneyLine': {
+                        'home': data.homeOdds,
+                        'draw': data.evenOdds,
+                        'away': data.awayOdds
+                    },
+                    'overUnder': {
+                        'over0.5': data.over0,
+                        'under0.5': data.under0,
+                        'over1.5': data.over1,
+                        'under1.5': data.under1,
+                        'over2.5': data.over2,
+                        'under2.5': data.under2,
+                        'over3.5': data.over3,
+                        'under3.5': data.under3,
+                    }
                 }
             })
-            i+=1
+            i-=1
     
     def saveAsJSON(self):
-        with open('data.json', 'w') as json_file:
+        with open(self.fileName + '.json', 'w') as json_file:
             json.dump(self.data, json_file, indent=1)
 
     def saveAsTXT(self):
-        with open('data.txt', 'w') as txt_file:
+        with open(self.fileName + '.txt', 'w') as txt_file:
             txt_file.writelines(json.dumps(self.data, indent=1))
 
     def saveAsCSV(self):
-        fields = ['league', 'season', 'round','date','time','home','away','homeScore','awayScore','homeGoals','homeScorers','awayGoals','awayScorers', '1HalfStats '+'home '+'Ball Possession',
+        fields = [
+        'id',
+        'country',
+        'league', 
+        'season', 
+        'round',
+        'date',
+        'time', 
+        'count',
+        'home',
+        'away',
+        'homeScore',
+        'awayScore',
+        'homeGoals',
+        'homeScorers', 
+        'homeAsists',
+        'awayGoals',
+        'awayScorers', 
+        'awayAsists',
+
+        '1HalfStats '+'home '+'Ball Possession',
         '1HalfStats '+'away '+'Ball Possession',
         '1HalfStats '+'home '+'Goal Attempts',
         '1HalfStats '+'away '+'Goal Attempts',
@@ -66,6 +119,8 @@ class OrganiseData:
         '1HalfStats '+'away '+'Free Kicks',
         '1HalfStats '+'home '+'Corner Kicks',
         '1HalfStats '+'away '+'Corner Kicks',
+        '1HalfStats '+'home '+'Offsides',
+        '1HalfStats '+'away '+'Offsides',
         '1HalfStats '+'home '+'Throw-in',
         '1HalfStats '+'away '+'Throw-in',
         '1HalfStats '+'home '+'Goalkeeper Saves',
@@ -84,9 +139,9 @@ class OrganiseData:
         '1HalfStats '+'away '+'Tackles',
         '1HalfStats '+'home '+'Attacks',
         '1HalfStats '+'away '+'Attacks',
-        
         '1HalfStats '+'home '+'Dangerous Attacks',
         '1HalfStats '+'away '+'Dangerous Attacks',
+
         '2HalfStats '+'home '+'Ball Possession',
         '2HalfStats '+'away '+'Ball Possession',
         '2HalfStats '+'home '+'Goal Attempts',
@@ -101,6 +156,8 @@ class OrganiseData:
         '2HalfStats '+'away '+'Free Kicks',
         '2HalfStats '+'home '+'Corner Kicks',
         '2HalfStats '+'away '+'Corner Kicks',
+        '2HalfStats '+'home '+'Offsides',
+        '2HalfStats '+'away '+'Offsides',
         '2HalfStats '+'home '+'Throw-in',
         '2HalfStats '+'away '+'Throw-in',
         '2HalfStats '+'home '+'Goalkeeper Saves',
@@ -122,99 +179,137 @@ class OrganiseData:
         '2HalfStats '+'home '+'Dangerous Attacks',
         '2HalfStats '+'away '+'Dangerous Attacks',
 
+        'moneyLineOdds '+'home',
+        'moneyLineOdds '+'draw',
+        'moneyLineOdds '+'away',
+
+        'overUnderOdds '+'over0.5',
+        'overUnderOdds '+'under0.5',
+        'overUnderOdds '+'over1.5',
+        'overUnderOdds '+'under1.5',
+        'overUnderOdds '+'over2.5',
+        'overUnderOdds '+'under2.5',
+        'overUnderOdds '+'over3.5',
+        'overUnderOdds '+'under3.5'
+        
         ]
+
         rows = []
         i=0
         for match in self.data[0]['matches'] :
-            rows[i].append(self.data[0]['country'], 
+            rows.append([])
+            rows[i].extend((
+            match['id'], 
+            self.data[0]['country'], 
             self.data[0]['league'], 
             self.data[0]['season'],
             match['round'],
             match['date'],
             match['time'], 
+            match['count'], 
             match['home'], 
             match['away'],
             match['homeScore'], 
             match['awayScore'], 
             match['homeGoals'],
             match['homeScorers'],
+            match['homeAsist'],
             match['awayGoals'], 
             match['awayScorers'], 
+            match['awayAsist'],
 
-            match['stats']['firstHalfStats']['home']['Ball Possession'],
-            match['stats']['firstHalfStats']['away']['Ball Possession'],
-            match['stats']['firstHalfStats']['home']['Goal Attempts'],
-            match['stats']['firstHalfStats']['away']['Goal Attempts'],
-            match['stats']['firstHalfStats']['home']['Shots on Goal'],
-            match['stats']['firstHalfStats']['away']['Shots on Goal'],
-            match['stats']['firstHalfStats']['home']['Shots off Goal'],
-            match['stats']['firstHalfStats']['away']['Shots off Goal'],
-            match['stats']['firstHalfStats']['home']['Blocked Shots'],
-            match['stats']['firstHalfStats']['away']['Blocked Shots'],
-            match['stats']['firstHalfStats']['home']['Free Kicks'],
-            match['stats']['firstHalfStats']['away']['Free Kicks'],
-            match['stats']['firstHalfStats']['home']['Corner Kicks'],
-            match['stats']['firstHalfStats']['away']['Corner Kicks'],
-            match['stats']['firstHalfStats']['home']['Throw-in'],
-            match['stats']['firstHalfStats']['away']['Throw-in'],
-            match['stats']['firstHalfStats']['home']['Goalkeeper Saves'],
-            match['stats']['firstHalfStats']['away']['Goalkeeper Saves'],
-            match['stats']['firstHalfStats']['home']['Fouls'],
-            match['stats']['firstHalfStats']['away']['Fouls'],
-            match['stats']['firstHalfStats']['home']['Yellow Cards'],
-            match['stats']['firstHalfStats']['away']['Yellow Cards'],
-            match['stats']['firstHalfStats']['home']['Red Cards'],
-            match['stats']['firstHalfStats']['away']['Red Cards'],
-            match['stats']['firstHalfStats']['home']['Total Passes'],
-            match['stats']['firstHalfStats']['away']['Total Passes'],
-            match['stats']['firstHalfStats']['home']['Completed Passes'],
-            match['stats']['firstHalfStats']['away']['Completed Passes'],
-            match['stats']['firstHalfStats']['home']['Tackles'],
-            match['stats']['firstHalfStats']['away']['Tackles'],
-            match['stats']['firstHalfStats']['home']['Attacks'],
-            match['stats']['firstHalfStats']['away']['Attacks'],
-            match['stats']['firstHalfStats']['home']['Dangerous Attacks'],
-            match['stats']['firstHalfStats']['away']['Dangerous Attacks'],
+            match['stats']['firstHalfStats']['home'].get('Ball Possession', 0),
+            match['stats']['firstHalfStats']['away'].get('Ball Possession', 0),
+            match['stats']['firstHalfStats']['home'].get('Goal Attempts', 0),
+            match['stats']['firstHalfStats']['away'].get('Goal Attempts', 0),
+            match['stats']['firstHalfStats']['home'].get('Shots on Goal', 0),
+            match['stats']['firstHalfStats']['away'].get('Shots on Goal', 0),
+            match['stats']['firstHalfStats']['home'].get('Shots off Goal', 0),
+            match['stats']['firstHalfStats']['away'].get('Shots off Goal', 0),
+            match['stats']['firstHalfStats']['home'].get('Blocked Shots', 0),
+            match['stats']['firstHalfStats']['away'].get('Blocked Shots', 0),
+            match['stats']['firstHalfStats']['home'].get('Free Kicks', 0),
+            match['stats']['firstHalfStats']['away'].get('Free Kicks', 0),
+            match['stats']['firstHalfStats']['home'].get('Corner Kicks', 0),
+            match['stats']['firstHalfStats']['away'].get('Corner Kicks', 0),
+            match['stats']['firstHalfStats']['home'].get('Offsides', 0),
+            match['stats']['firstHalfStats']['away'].get('Offsides', 0),
+            match['stats']['firstHalfStats']['home'].get('Throw-in', 0),
+            match['stats']['firstHalfStats']['away'].get('Throw-in', 0),
+            match['stats']['firstHalfStats']['home'].get('Goalkeeper Saves', 0),
+            match['stats']['firstHalfStats']['away'].get('Goalkeeper Saves', 0),
+            match['stats']['firstHalfStats']['home'].get('Fouls', 0),
+            match['stats']['firstHalfStats']['away'].get('Fouls', 0),
+            match['stats']['firstHalfStats']['home'].get('Yellow Cards', 0),
+            match['stats']['firstHalfStats']['away'].get('Yellow Cards', 0),
+            match['stats']['firstHalfStats']['home'].get('Red Cards', 0),
+            match['stats']['firstHalfStats']['away'].get('Red Cards', 0),
+            match['stats']['firstHalfStats']['home'].get('Total Passes', 0),
+            match['stats']['firstHalfStats']['away'].get('Total Passes', 0),
+            match['stats']['firstHalfStats']['home'].get('Completed Passes', 0),
+            match['stats']['firstHalfStats']['away'].get('Completed Passes', 0),
+            match['stats']['firstHalfStats']['home'].get('Tackles', 0),
+            match['stats']['firstHalfStats']['away'].get('Tackles', 0),
+            match['stats']['firstHalfStats']['home'].get('Attacks', 0),
+            match['stats']['firstHalfStats']['away'].get('Attacks', 0),
+            match['stats']['firstHalfStats']['home'].get('Dangerous Attacks', 0),
+            match['stats']['firstHalfStats']['away'].get('Dangerous Attacks', 0),
 
-            match['stats']['secondHalfStats']['home']['Ball Possession'],
-            match['stats']['secondHalfStats']['away']['Ball Possession'],
-            match['stats']['secondHalfStats']['home']['Goal Attempts'],
-            match['stats']['secondHalfStats']['away']['Goal Attempts'],
-            match['stats']['secondHalfStats']['home']['Shots on Goal'],
-            match['stats']['secondHalfStats']['away']['Shots on Goal'],
-            match['stats']['secondHalfStats']['home']['Shots off Goal'],
-            match['stats']['secondHalfStats']['away']['Shots off Goal'],
-            match['stats']['secondHalfStats']['home']['Blocked Shots'],
-            match['stats']['secondHalfStats']['away']['Blocked Shots'],
-            match['stats']['secondHalfStats']['home']['Free Kicks'],
-            match['stats']['secondHalfStats']['away']['Free Kicks'],
-            match['stats']['secondHalfStats']['home']['Corner Kicks'],
-            match['stats']['secondHalfStats']['away']['Corner Kicks'],
-            match['stats']['secondHalfStats']['home']['Throw-in'],
-            match['stats']['secondHalfStats']['away']['Throw-in'],
-            match['stats']['secondHalfStats']['home']['Goalkeeper Saves'],
-            match['stats']['secondHalfStats']['away']['Goalkeeper Saves'],
-            match['stats']['secondHalfStats']['home']['Fouls'],
-            match['stats']['secondHalfStats']['away']['Fouls'],
-            match['stats']['secondHalfStats']['home']['Yellow Cards'],
-            match['stats']['secondHalfStats']['away']['Yellow Cards'],
-            match['stats']['secondHalfStats']['home']['Red Cards'],
-            match['stats']['secondHalfStats']['away']['Red Cards'],
-            match['stats']['secondHalfStats']['home']['Total Passes'],
-            match['stats']['secondHalfStats']['away']['Total Passes'],
-            match['stats']['secondHalfStats']['home']['Completed Passes'],
-            match['stats']['secondHalfStats']['away']['Completed Passes'],
-            match['stats']['secondHalfStats']['home']['Tackles'],
-            match['stats']['secondHalfStats']['away']['Tackles'],
-            match['stats']['secondHalfStats']['home']['Attacks'],
-            match['stats']['secondHalfStats']['away']['Attacks'],
-            match['stats']['secondHalfStats']['home']['Dangerous Attacks'],
-            match['stats']['secondHalfStats']['away']['Dangerous Attacks'])
+            match['stats']['secondHalfStats']['home'].get('Ball Possession', 0),
+            match['stats']['secondHalfStats']['away'].get('Ball Possession', 0),
+            match['stats']['secondHalfStats']['home'].get('Goal Attempts', 0),
+            match['stats']['secondHalfStats']['away'].get('Goal Attempts', 0),
+            match['stats']['secondHalfStats']['home'].get('Shots on Goal', 0),
+            match['stats']['secondHalfStats']['away'].get('Shots on Goal', 0),
+            match['stats']['secondHalfStats']['home'].get('Shots off Goal', 0),
+            match['stats']['secondHalfStats']['away'].get('Shots off Goal', 0),
+            match['stats']['secondHalfStats']['home'].get('Blocked Shots', 0),
+            match['stats']['secondHalfStats']['away'].get('Blocked Shots', 0),
+            match['stats']['secondHalfStats']['home'].get('Free Kicks', 0),
+            match['stats']['secondHalfStats']['away'].get('Free Kicks', 0),
+            match['stats']['secondHalfStats']['home'].get('Corner Kicks', 0),
+            match['stats']['secondHalfStats']['away'].get('Corner Kicks', 0),
+            match['stats']['secondHalfStats']['home'].get('Offsides', 0),
+            match['stats']['secondHalfStats']['away'].get('Offsides', 0),
+            match['stats']['secondHalfStats']['home'].get('Throw-in', 0),
+            match['stats']['secondHalfStats']['away'].get('Throw-in', 0),
+            match['stats']['secondHalfStats']['home'].get('Goalkeeper Saves', 0),
+            match['stats']['secondHalfStats']['away'].get('Goalkeeper Saves', 0),
+            match['stats']['secondHalfStats']['home'].get('Fouls', 0),
+            match['stats']['secondHalfStats']['away'].get('Fouls', 0),
+            match['stats']['secondHalfStats']['home'].get('Yellow Cards', 0),
+            match['stats']['secondHalfStats']['away'].get('Yellow Cards', 0),
+            match['stats']['secondHalfStats']['home'].get('Red Cards', 0),
+            match['stats']['secondHalfStats']['away'].get('Red Cards', 0),
+            match['stats']['secondHalfStats']['home'].get('Total Passes', 0),
+            match['stats']['secondHalfStats']['away'].get('Total Passes', 0),
+            match['stats']['secondHalfStats']['home'].get('Completed Passes', 0),
+            match['stats']['secondHalfStats']['away'].get('Completed Passes', 0),
+            match['stats']['secondHalfStats']['home'].get('Tackles', 0),
+            match['stats']['secondHalfStats']['away'].get('Tackles', 0),
+            match['stats']['secondHalfStats']['home'].get('Attacks', 0),
+            match['stats']['secondHalfStats']['away'].get('Attacks', 0),
+            match['stats']['secondHalfStats']['home'].get('Dangerous Attacks', 0),
+            match['stats']['secondHalfStats']['away'].get('Dangerous Attacks', 0),
+
+            match['odds']['moneyLine']['home'],
+            match['odds']['moneyLine']['draw'],
+            match['odds']['moneyLine']['away'],
+
+            match['odds']['overUnder']['over0.5'],
+            match['odds']['overUnder']['under0.5'],
+            match['odds']['overUnder']['over1.5'],
+            match['odds']['overUnder']['under1.5'],
+            match['odds']['overUnder']['over2.5'],
+            match['odds']['overUnder']['under2.5'],
+            match['odds']['overUnder']['over3.5'],
+            match['odds']['overUnder']['under3.5'])
+            )
 
             i+=1
 
 
-        with open('data.csv', 'w') as csv_file:  
+        with open(self.fileName + '.csv', 'w') as csv_file:  
             # creating a csv writer object  
             csvwriter = csv.writer(csv_file)  
                 

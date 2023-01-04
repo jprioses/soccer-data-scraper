@@ -33,12 +33,8 @@ class GetData():
             self.data[i].get_secondHalfHomeStats()
             self.data[i].get_secondHalfAwayStats()
             self.data[i].get_odds()
-            
-
-            if (i==1):
-                navigate.closeWindow()
-                break
-            
+            print(str(i) + ' out of ' + str(len(arrayMatches)))
+        
             i+= 1
 
             navigate.closeWindow()
@@ -48,6 +44,7 @@ class GetData():
 class GetEachMatchData():
 
     def __init__(self):
+
             self.date = ''
             self.time= ''
             self.round=''
@@ -72,7 +69,17 @@ class GetEachMatchData():
             self.firstHalfAwayStats = {}
             self.secondHalfAwayStats = {}
 
-            self.homeOdd = 0
+            self.homeOdds = 0
+            self.evenOdds = 0
+            self.awayOdds = 0
+            self.over0 = 0
+            self.under0 = 0
+            self.over1 = 0
+            self.under1 = 0
+            self.over2 = 0
+            self.under2 = 0
+            self.over3 = 0
+            self.under3 = 0
 
     def get_dateTimeRound(self):
         dateTimeInfo, roundInfo = navigate.eachMatchInfo()
@@ -103,7 +110,7 @@ class GetEachMatchData():
         self.secondHalfAwayStats = navigate.eachMatchStats('away', '2ND HALF', True, True)
 
     def get_odds(self):
-        self.homeOdd = navigate.eachMatchOdds()
+        self.homeOdds, self.evenOdds, self.awayOdds, self.over0, self.under0, self.over1, self.under1, self.over2, self.under2, self.over3, self.under3 = navigate.eachMatchOdds()
 
 
 
