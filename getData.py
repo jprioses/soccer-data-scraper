@@ -88,8 +88,16 @@ class GetEachMatchData():
         self.date = arrayDateTime[0]
         self.time = arrayDateTime[1]
 
-        arrayRound = roundInfo.split(' - ROUND ')
-        self.round = arrayRound[1]
+        try:
+            arrayRound = roundInfo.split(' - ROUND ')
+            self.round = arrayRound[1]
+        except:
+            try:
+                arrayRound = roundInfo.split(' - PLAY OFFS - ')
+                self.round = arrayRound[1]
+            except:
+                self.round = 'FINALS'
+
 
     def get_homeData(self):
         self.home, self.homeScore, self.homeGoals, self.homeScorer, self.homeAsist= navigate.eachMatchGoals('home')

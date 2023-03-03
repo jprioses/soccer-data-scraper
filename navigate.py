@@ -15,7 +15,6 @@ class Navigate:
         
     def openUrl(self, url):
         
-        
         self.chromeBrowser.get(url)
         self.chromeBrowser.switch_to.window(self.chromeBrowser.window_handles[1])
         self.chromeBrowser.close()
